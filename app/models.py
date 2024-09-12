@@ -56,6 +56,11 @@ class Vote(BaseModel):
         verbose_name="Vote Score",
         validators=[MinValueValidator(0), MaxValueValidator(5)],
     )
+    reversed = models.BooleanField(
+        verbose_name="Reversed",
+        help_text="The vote is reversed (excluded from count and average) if it's detected as fraudulent",
+        default=False,
+    )
 
     def __str__(self):
         return f"{self.user} on {self.post}: {self.score}"
@@ -70,6 +75,11 @@ class Vote(BaseModel):
             old_score: int = Vote.objects.get(pk=self.pk).score
             super().save(*args, **kwargs)
             PostSummary.update(post=self.post, new_score=self.score, old_score=old_score)
+
+    def reverse(self):
+        PostSummary.update(post=self.post, new_score=self.score, reverse=True)
+        self.reversed = True
+        self.save(update_fields=["reversed"])
 
     class Meta:
         unique_together = ("user", "post",)
@@ -91,14 +101,28 @@ class PostSummary(BaseModel):
 
     @classmethod
     @transaction.atomic
-    def update(cls, post: Post, new_score: int, old_score: int = None, *args, **kwargs) -> "PostSummary":
+    def update(
+            cls,
+            post: Post,
+            new_score: int,
+            old_score: int = None,
+            reverse: bool = False,
+            *args,
+            **kwargs,
+    ) -> "PostSummary":
         post_summary, _ = cls.objects.select_for_update().get_or_create(post=post)
+        new_votes: int = 1
+
+        if reverse:
+            new_votes *= -1
+            new_score *= -1
+
         if old_score is None:
             post_summary.average_score = (
                 (post_summary.average_score * post_summary.total_votes + new_score) /
-                (post_summary.total_votes + 1)
+                (post_summary.total_votes + new_votes)
             )
-            post_summary.total_votes += 1
+            post_summary.total_votes += new_votes
         else:
             post_summary.average_score = (
                 (post_summary.average_score * post_summary.total_votes - old_score + new_score) /

@@ -68,3 +68,21 @@ class BlogTestCase(TestCase):
 
         self.assertEqual(self.post.summary.total_votes, 1)
         self.assertEqual(self.post.summary.average_score, 3)
+
+    def test_reverse_vote(self):
+        user1_vote = self.user1.vote(post=self.post, score=4)
+        user2_vote = self.user2.vote(post=self.post, score=5)
+        self.post.refresh_from_db()
+
+        self.assertFalse(user1_vote.reversed)
+        self.assertFalse(user2_vote.reversed)
+        self.assertEqual(self.post.summary.total_votes, 2)
+        self.assertEqual(self.post.summary.average_score, 4.5)
+
+        user2_vote.reverse()
+        self.post.refresh_from_db()
+
+        self.assertFalse(user1_vote.reversed)
+        self.assertTrue(user2_vote.reversed)
+        self.assertEqual(self.post.summary.total_votes, 1)
+        self.assertEqual(self.post.summary.average_score, 4)
