@@ -110,6 +110,9 @@ class PostSummary(BaseModel):
             *args,
             **kwargs,
     ) -> "PostSummary":
+        if old_score is not None and reverse:
+            raise Exception("Can't update and reverse vote at the same time")
+
         post_summary, _ = cls.objects.select_for_update().get_or_create(post=post)
         new_votes: int = 1
 
