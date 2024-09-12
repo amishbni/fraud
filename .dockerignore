@@ -1,0 +1,23 @@
+# Docker
+docker-compose.yml
+Dockerfile
+
+# Markdown
+README.md
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Git
+.git
+.gitignore
+
+# JetBrains
+.idea
+
+# Virtual environment
+venv

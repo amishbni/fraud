@@ -1,0 +1,61 @@
+services:
+  web:
+    build:
+      context: .
+    container_name: "web"
+    environment:
+      - SERVICE=web
+    networks:
+      - blog
+    volumes:
+      - static_data:/app/staticfiles
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: "postgres:16.2"
+    container_name: "postgres"
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    networks:
+      - blog
+    volumes:
+      - database_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DATABASE_USER} -d ${DATABASE_NAME}'"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  nginx:
+    build: ./nginx
+    container_name: "nginx"
+    networks:
+      - blog
+    ports:
+      - "80:80"
+    volumes:
+      - static_data:/app/staticfiles
+    depends_on:
+      web:
+        condition: service_started
+    restart: on-failure
+
+volumes:
+  database_data:
+    name: database_volume
+    driver: local
+  redis_data:
+    name: redis_volume
+    driver: local
+  static_data:
+    name: static_volume
+    driver: local
+
+networks:
+  blog:
+    name: blog_network
+    driver: bridge
