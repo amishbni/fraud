@@ -30,6 +30,21 @@ services:
       timeout: 3s
       retries: 3
 
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: always
+    command: redis-server --save 20 1 --loglevel warning
+    volumes:
+      - redis_data:/cache_data
+    networks:
+      - blog
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
   nginx:
     build: ./nginx
     container_name: "nginx"
@@ -43,6 +58,46 @@ services:
       web:
         condition: service_started
     restart: on-failure
+
+  celery-worker:
+    build:
+      context: .
+    container_name: "celery_worker"
+    environment:
+      - SERVICE=celery_worker
+    networks:
+      - blog
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: celery -A wallet inspect -d celery@main_worker ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  celery-beat:
+    build:
+      context: .
+    container_name: "celery_beat"
+    environment:
+      - SERVICE=celery_beat
+    networks:
+      - blog
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: celery -A wallet inspect -d celery@main_worker ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   database_data:

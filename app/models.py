@@ -1,7 +1,11 @@
+import math
+from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
+from django.db.models import QuerySet
+from django.utils import timezone
 
 from utils.models import BaseModel
 
@@ -76,6 +80,21 @@ class Vote(BaseModel):
         PostSummary.update(post=self.post, new_score=self.score, reverse=True)
         self.reversed = True
         self.save(update_fields=["reversed"])
+
+    def z_score(self, recent_votes: "QuerySet[Vote]"):
+        total_votes = recent_votes.count()
+        if total_votes == 0:
+            return None
+
+        mean = recent_votes.aggregate(models.Avg("score"))["score__avg"]
+        variance = sum((vote.score - mean) ** 2 for vote in recent_votes) / total_votes
+        standard_deviation = math.sqrt(variance)
+
+        if standard_deviation == 0:
+            return 0
+
+        z_score = (self.score - mean) / standard_deviation
+        return z_score
 
     class Meta:
         unique_together = ("user", "post",)
