@@ -1,4 +1,32 @@
-# Voter Fraud Detection
+# Voter Fraud Detection Using Z-Scores
+
+This project implements a voter fraud detection system by calculating 
+the z-score of each vote in relation to the scores cast in the past 24 hours.
+By identifying votes that deviate significantly from the recent voting pattern, 
+we can flag (and reverse) potential voter fraud or unusual voting behavior.
+
+
+## Table of Contents
+1. [How It Works](#how-it-works)
+2. [Installation](#installation)
+3. [Building and Running](#building-and-running)
+4. [API Documentation](#api-documentation)
+
+## How It Works
+This detection system focuses on the following concepts:
+
+1. Z-Score: A statistical measure that tells us how far away a value is from the mean, measured in terms of standard deviation.
+$$Z = \dfrac{\left(X - \mu\right)}{\sigma}$$
+
+    Where:
+   - $X$ is the individual vote score.
+   - $\mu$ is the mean (average) score of votes cast in the last 24 hours.
+   - $\sigma$ is the standard deviation of the votes from the last 24 hours.
+
+2. Recent Voting Data: The system analyzes only the votes cast within the last 24 hours to detect sudden changes in behavior.
+
+3. Threshold: A z-score threshold (e.g., 2 or -2) is used to flag votes as potentially fraudulent. Votes with z-scores that exceed this threshold are considered outliers.
+
 
 ## Installation
 Make sure to have [docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/linux/) installed on your system.
@@ -44,5 +72,5 @@ docker compose exec -it web bash
 python manage.py createsuperuser
 ```
 
-## Documentation
+## API Documentation
 You can view the Swagger UI at http://127.0.0.1/swagger.
