@@ -65,7 +65,8 @@ Depending on your installation, the *compose* command might be like this:
 docker-compose up -d --build
 ```
 
-Create a superuser that has admin privileges:
+Create a superuser that has admin privileges.
+For simplicity, Basic Authentication is chosen as the method to authenticate users.
 
 ```shell
 docker compose exec -it web bash
