@@ -37,5 +37,12 @@ Depending on your installation, the *compose* command might be like this:
 docker-compose up -d --build
 ```
 
+Create a superuser that has admin privileges:
+
+```shell
+docker compose exec -it web bash
+python manage.py createsuperuser
+```
+
 ## Documentation
 You can view the Swagger UI at http://127.0.0.1/swagger.
