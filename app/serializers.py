@@ -33,3 +33,18 @@ class PostListSerializer(serializers.ModelSerializer):
         except Vote.DoesNotExist:
             return None
         return vote.score
+
+
+class CastVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vote
+        fields = (
+            "user",
+            "post",
+            "score",
+        )
+        read_only_fields = (
+            "user",
+            "post",
+            "score",
+        )
