@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_spectacular',
     'app',
     'utils',
 ]
@@ -129,3 +131,32 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API Documentation',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'CONTACT': {
+        "name": "Amir Shabani",
+        "email": "ami.shbni@gmail.com",
+    },
+    'SWAGGER_UI_SETTINGS': {
+        'docExpansion': None,
+        'filter': True,
+        'tryItOutEnabled': True,
+        'tagsSorter': 'alpha',
+        'defaultModelsExpandDepth': -1,
+    },
+}
+
+AUTH_USER_MODEL = "app.User"

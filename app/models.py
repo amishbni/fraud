@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
@@ -5,12 +6,7 @@ from django.db import models, transaction
 from utils.models import BaseModel
 
 
-class User(BaseModel):
-    username = models.CharField(
-        verbose_name="Username",
-        max_length=255, unique=True,
-    )
-
+class User(BaseModel, AbstractUser):
     def __str__(self):
         return self.username
 
