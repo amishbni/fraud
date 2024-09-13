@@ -13,6 +13,7 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = (
+            "pk",
             "title",
             "average_score",
             "score_count",
