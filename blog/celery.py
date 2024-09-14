@@ -13,6 +13,6 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "fraud_detection": {
         "task": "app.tasks.fraud_detection",
-        "schedule": crontab(minute="*/1"),
+        "schedule": crontab(minute="*/30"),
     },
 }
